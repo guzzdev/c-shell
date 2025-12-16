@@ -12,13 +12,13 @@ int main(int argc, char *argv[])
     char input[100];
     fgets(input, sizeof(input), stdin);
     input[strcspn(input, "\n")] = '\0';
-
     if (strcmp(input, "exit") == 0)
     {
       break;
-    } else if (strcmp(input, "echo") == 0)
+    } else if (strncmp(input, "echo", 4) == 0)
     {
       printf("%s\n", input + 5); // Print everything after "echo "
+      continue;
     }
     else
     {
