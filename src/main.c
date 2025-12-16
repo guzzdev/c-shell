@@ -9,10 +9,10 @@ int main(int argc, char *argv[]) {
   // TODO: Uncomment the code below to pass the first stage
   printf("$ ");
   
-  char command[1024];
-  fgets(command, sizeof(command), stdin);
-  command[strcspn(command, "\n")] = '\0';
-  printf("%s : command not found\n", command);
+  char input[100];
+  fgets(input, sizeof(input), stdin);
+  input[strcspn(input, "\n")] = '\0';
+  printf("$%s: command not found\n", input);
 
   return 0;
 }
