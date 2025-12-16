@@ -19,6 +19,14 @@ int main(int argc, char *argv[])
     {
       printf("%s\n", input + 5); // Print everything after "echo "
       continue;
+    } else if (strncmp(input, "type", 4) == 0) {
+      if (strcmp(input + 5, "exit") == 0) printf("%s is a shell builtin\n", input + 5);
+      if (strcmp(input + 5, "echo") == 0)  printf("%s is a shell builtin\n", input + 5);
+      if (strcmp(input + 5, "type") == 0)  printf("%s is a shell builtin\n", input + 5);
+      else {
+        printf("%s: not found\n", input + 5);
+      }
+      continue;
     }
     else
     {
