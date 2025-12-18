@@ -3,62 +3,79 @@
 #include <string.h>
 #include <unistd.h>
 
+int isBuiltIn(char *cmd)
+{
+  return strcmp(cmd, "exit") == 0 ||
+         strcmp(cmd, "echo") == 0 ||
+         strcmp(cmd, "type") == 0;
+}
+
+int handleType(char *cmd)
+{
+  if (isBuiltIn(cmd))
+  {
+    printf("%s is a shell builtin\n", cmd);
+    return 1;
+  }
+  else
+  {
+    char *path_env = getenv("PATH");
+    char path_copy[1024];
+    strcpy(path_copy, path_env);
+
+    char *file = cmd;
+    char *dir = strtok(path_copy, ":");
+    while (dir != NULL)
+    {
+      char file_path[1024];
+      strcpy(file_path, dir);
+      strcat(file_path, "/");
+      strcat(file_path, file);
+
+      dir = strtok(NULL, ":");
+
+      if (access(file_path, X_OK) == 0)
+      {
+        printf("%s is %s\n", cmd, file_path);
+        return 1;
+      }
+    }
+    return 0;
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   for (;;)
   {
-
-    char *path_env = getenv("PATH");
-    char path_copy[1024];
-
-    strcpy(path_copy, path_env);
-    
-
-    printf("%i", access(path_copy, F_OK));
-
-    printf(path_copy, ":");
-    printf(strtok(NULL, ":"));
-    printf(strtok(NULL, ":"));
-
-    // Flush after every printf
     setbuf(stdout, NULL);
     printf("$ ");
+
     char input[100];
     fgets(input, sizeof(input), stdin);
     input[strcspn(input, "\n")] = '\0';
+
     if (strcmp(input, "exit") == 0)
     {
       break;
-    } else if (strncmp(input, "echo", 4) == 0)
+    }
+    else if (strncmp(input, "echo", 4) == 0)
     {
-      printf("%s\n", input + 5); // Print everything after "echo "
+      printf("%s\n", input + 5);
       continue;
-    } else if (strncmp(input, "type", 4) == 0) {
-      if (strcmp(input + 5, "exit") == 0) {
-        printf("%s is a shell builtin\n", input + 5); 
-        continue;
+    }
+    else if (strncmp(input, "type", 4) == 0)
+    {
+      char *cmd = input + 5;
+      if (handleType(cmd) == 0)
+      {
+        printf("%s: not found\n", cmd);
       }
-      if (strcmp(input + 5, "echo") == 0) {
-        printf("%s is a shell builtin\n", input + 5); 
-        continue;
-      } 
-      if (strcmp(input + 5, "type") == 0) {
-        printf("%s is a shell builtin\n", input + 5); 
-        continue;
-      } 
-      // if () {
-      
-      // }
-      else {
-        printf("%s: not found\n", input + 5);
-      }
-      continue;
     }
     else
     {
       printf("%s: command not found\n", input);
     }
   }
-
-  return 0;
 }
