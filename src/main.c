@@ -1,11 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
   for (;;)
   {
+
+    char *path_env = getenv("PATH");
+    char path_copy[1024];
+
+    strcpy(path_copy, path_env);
+    
+
+    printf("%i", access(path_copy, F_OK));
+
+    printf(path_copy, ":");
+    printf(strtok(NULL, ":"));
+    printf(strtok(NULL, ":"));
+
     // Flush after every printf
     setbuf(stdout, NULL);
     printf("$ ");
@@ -31,7 +45,11 @@ int main(int argc, char *argv[])
       if (strcmp(input + 5, "type") == 0) {
         printf("%s is a shell builtin\n", input + 5); 
         continue;
-      } else {
+      } 
+      // if () {
+      
+      // }
+      else {
         printf("%s: not found\n", input + 5);
       }
       continue;
