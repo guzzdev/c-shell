@@ -10,37 +10,50 @@ int isBuiltIn(char *cmd)
          strcmp(cmd, "type") == 0;
 }
 
+char *findPath(char *cmd)
+{
+  char *path_env = getenv("PATH");
+  char path_copy[1024];
+  strcpy(path_copy, path_env);
+
+  char *file = cmd;
+  char *dir = strtok(path_copy, ":");
+  while (dir != NULL)
+  {
+    char file_path[1024];
+    strcpy(file_path, dir);
+    strcat(file_path, "/");
+    strcat(file_path, file);
+
+    dir = strtok(NULL, ":");
+
+    if (access(file_path, X_OK) == 0)
+    {
+      return strdup(file_path);
+    }
+  }
+  return NULL;
+}
+
 int handleType(char *cmd)
 {
+
   if (isBuiltIn(cmd))
   {
     printf("%s is a shell builtin\n", cmd);
-    return 1;
   }
   else
   {
-    char *path_env = getenv("PATH");
-    char path_copy[1024];
-    strcpy(path_copy, path_env);
-
-    char *file = cmd;
-    char *dir = strtok(path_copy, ":");
-    while (dir != NULL)
+    char *foundPath = findPath(cmd);
+    if (foundPath != NULL)
     {
-      char file_path[1024];
-      strcpy(file_path, dir);
-      strcat(file_path, "/");
-      strcat(file_path, file);
-
-      dir = strtok(NULL, ":");
-
-      if (access(file_path, X_OK) == 0)
-      {
-        printf("%s is %s\n", cmd, file_path);
-        return 1;
-      }
+      printf("%s is %s\n", cmd, foundPath);
+      free(foundPath);
     }
-    return 0;
+    else
+    {
+      printf("%s: not found\n", cmd);
+    }
   }
   return 0;
 }
@@ -67,11 +80,12 @@ int main(int argc, char *argv[])
     }
     else if (strncmp(input, "type", 4) == 0)
     {
-      char *cmd = input + 5;
-      if (handleType(cmd) == 0)
-      {
-        printf("%s: not found\n", cmd);
-      }
+      handleType(input + 5);
+    }
+    else if (isBuiltIn(input) == 0 && findPath(input))
+    {
+      printf("Executing external command: %s\n", input);
+      execl("/bin/sh", "sh", "-c", input, (char *)NULL);
     }
     else
     {
