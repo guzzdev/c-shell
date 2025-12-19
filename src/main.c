@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 int isBuiltIn(char *cmd)
 {
@@ -82,10 +83,43 @@ int main(int argc, char *argv[])
     {
       handleType(input + 5);
     }
-    else if (isBuiltIn(input) == 0 && findPath(input))
+    else if (!isBuiltIn(input))
     {
-      printf("Executing external command: %s\n", input);
-      execl("/bin/sh", "sh", "-c", input, (char *)NULL);
+      char *args[100] = {0};
+      
+      char *buffer = strtok(input, " ");
+      int index = 0;
+      
+      while (buffer != NULL) {
+        args[index++] = buffer;
+        buffer = strtok(NULL, " ");
+      }
+    
+      args[index] = NULL;
+      char *path = findPath(args[0]);
+
+      if (path != NULL)
+      {
+        pid_t pid = fork();
+        
+        if (pid == 0) {
+            execv(path, args);
+            perror("execv failed");
+            exit(1);
+        }
+        else if (pid > 0) {
+            int status;
+            waitpid(pid, &status, 0);
+            continue;
+        }
+        else {
+            perror("fork failed");
+            continue;
+        }
+        free(path);}
+      else {
+        printf("%s: command not found\n", args[0]);
+      }
     }
     else
     {
