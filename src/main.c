@@ -8,6 +8,7 @@ int isBuiltIn(char *cmd)
 {
   return strcmp(cmd, "exit") == 0 ||
          strcmp(cmd, "echo") == 0 ||
+         strcmp(cmd, "pwd") == 0 ||
          strcmp(cmd, "type") == 0;
 }
 
@@ -82,6 +83,12 @@ int main(int argc, char *argv[])
     else if (strncmp(input, "type", 4) == 0)
     {
       handleType(input + 5);
+    }
+    else if (strcmp(input, "pwd") == 0)
+    {
+      char buffer[256];
+      getcwd(buffer, 256);
+      printf("%s \n", buffer);
     }
     else if (!isBuiltIn(input))
     {
