@@ -90,6 +90,13 @@ int main(int argc, char *argv[])
       getcwd(buffer, 256);
       printf("%s \n", buffer);
     }
+    else if (strncmp(input, "cd", 2) == 0)
+    {
+      if (chdir(input + 3) != 0)
+      {
+        printf("cd: %s: No such file or directory\n", input+3);
+      }
+    }
     else if (!isBuiltIn(input))
     {
       char *args[100] = {0};
