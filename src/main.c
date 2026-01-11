@@ -92,7 +92,12 @@ int main(int argc, char *argv[])
     }
     else if (strncmp(input, "cd", 2) == 0)
     {
-      if (chdir(input + 3) != 0)
+      if (strcmp(&input[3], "~") == 0)
+      {
+        chdir(getenv("HOME"));
+        continue;
+      }
+      else if (chdir(input + 3) != 0)
       {
         printf("cd: %s: No such file or directory\n", input+3);
       }
